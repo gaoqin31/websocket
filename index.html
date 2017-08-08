@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>A simple chart room</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<style>
+body{
+	text-align:center;
+}
+
+.main{
+	margin:0 auto;
+	background-color:white;
+	border:1px solid red;
+	width : 700px;
+	height : 700px;
+}
+
+.info{
+	width : 90%;
+	height : 70%;
+	border:1px solid red;
+	margin:10px auto;
+	text-align:left;
+	overflow:scroll;
+}
+
+.msg{
+	margin:10px auto;
+}
+
+</style>
+<body>
+	<div class="main">
+		<div id="num"></div>
+		<div class="info" id="info"></div>
+		<div class="msg">
+
+			昵称 : <input type="text" id="nick" value="游客"/><br><br>
+			
+			内容 : <textArea cols="80"  rows="5" id="msg" placeholder="输入聊天内容">
+				
+			</textArea>
+			<br>
+			<input type="button" id="close" value="关闭"/>&nbsp;&nbsp;&nbsp<input type="button" id="send" value="发送"/>
+		</div>
+	</div>
+</body>
+<script>
+var $ = function(id){
+	return document.getElementById(id);
+};
+var ws = "ws://192.168.7.63:1027";
+var socket = new WebSocket(ws);
+
+Object.defineProperty(Object.prototype, 'trim', {
+	value : function(data){
+		return data.replace(/^\s+|\s+$/gm,'')
+	},
+	enumerable : false,
+});
+
+socket.onopen = function(data){
+	
+};
+
+socket.onmessage = function(msg){
+	data = JSON.parse(msg.data);
+	console.log(data);
+	if(data['cmd'] == 'msg'){
+		$('info').innerHTML = data['time'] + " " + data['nick'] + " 说 : " + data['msg'] + '<br><br>' + $('info').innerHTML;
+	}else if(data['cmd'] == 'allmsg'){
+		var msg = '';
+		for(var i in data['msg']){
+			msg += data['msg'][i]['time'] + " " + data['msg'][i]['nick'] + " 说 : " + data['msg'][i]['msg'] + '<br><br>';
+		}
+		$('info').innerHTML = msg;
+	}else if(data['cmd'] == 'getCnt'){
+		$('num').innerHTML = '<b>当前在先人数: </b><font color="red">' + data['num'] + "</font>";
+	}
+};
+
+socket.onerror = function(){
+	alert('error');
+};
+
+socket.onclose = function(){
+	//alert('close');
+};
+
+$('send').addEventListener('click', function(){
+	var nick = trim($('nick').value);
+	var msg = trim($('msg').value);
+	if(!nick){
+		alert("聊天昵称不能为空！");
+		return false;
+	}
+	if(!msg){
+		alert("聊天内容不能为空！");
+		return false;
+	}
+	var json = {cmd : 'msg', nick : nick, msg : msg};
+	if(socket.readyState == 1){
+		socket.send(JSON.stringify(json));
+	}else{
+		alert("聊天已中断！");
+	}
+});
+
+$('close').addEventListener('click', function(){
+	if(confirm('关闭将离开聊天室?')){
+		socket.close();
+	}
+});
+</script>
+</html>
