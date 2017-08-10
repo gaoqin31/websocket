@@ -174,7 +174,7 @@ class Server{
 		$encode = '';
 		if($len < 126){
 			$encode = chr(0x81) . chr($len) . $data;
-		}else if($len  >= 126 && $len < 0xffff){
+		}else if($len  >= 126 && $len <= 0xffff){
 			$low = $len & 0x00FF;
 			$high = ($len & 0xFF00) >> 8;
 			$encode = chr(0x81) . chr(0x7E) . chr($high) . chr($low) . $data;
