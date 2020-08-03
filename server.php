@@ -108,19 +108,21 @@ class Server{
 						if(!$data){
 							continue;
 						}
-						//opcode 0x80为客户端发的关闭幀,客户端发送的数据非掩码
-						if($data[0] == 0x8 || $data[1] != 0x1){
+						list($opcode, $ismask, $msg) = $data;
+						//opcode 0x80为客户端发的关闭幀, 客户端发送的数据非掩码
+						if($opcode == 0x8 || $ismask != 0x1){
 							$this->closeconnect();
 							//更新客户端在线人数
 							$this->broadcast(array('cmd'=>'getCnt', 'num'=>$this->getCnt()));
 						}
-						if($data[2] && $data[2]['cmd'] == 'msg'){
-							$data[2]['time'] = date('Y-m-d H:i:s');
+						if($msg && $msg['cmd'] == 'msg'){
+                            $msg['time'] = date('Y-m-d H:i:s');
 							//广播给所有客户端
-							$this->broadcast($data[2]);
+							$this->broadcast($msg);
+
 							//添加到历史留言内容
-							unset($data[2]['cmd']);
-							array_unshift($this->allMsg['msg'], $data[2]);
+							unset($msg['cmd']);
+							array_unshift($this->allMsg['msg'], $msg);
 						}
 					}
 				}
@@ -197,6 +199,7 @@ class Server{
 			$decode = join('', $decode);
 			$decode = json_decode($decode, true);
 		}
+		//返回 opcode，ismask, 消息数据
 		return array($opcode, $ismask, $decode);
 	}
 
