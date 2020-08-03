@@ -9,7 +9,7 @@ date_default_timezone_set("Asia/shanghai");
 
 class Server{
 	
-	const HOST = '10.0.2.15';
+	const HOST = '0.0.0.0';
 	
 	const PORT = '1027';
 	
@@ -30,9 +30,7 @@ class Server{
 	//历史留言内容
 	private $allMsg = array('cmd'=>'allmsg', 'msg'=>array());
 	
-	private function __construct() {
-		$this->run();
-	}
+	private function __construct() {}
 	
 	public static function getInstance(){
 		if(self::$_instance == null){
