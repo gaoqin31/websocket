@@ -34,7 +34,7 @@ body{
 </style>
 <body>
 	<div class="main">
-		<div id="num"></div>
+		<div id="num"><b>当前在先人数: </b><font color="red"></font></div>
 		<div class="info" id="info"></div>
 		<div class="msg">
 
@@ -52,7 +52,7 @@ body{
 var $ = function(id){
 	return document.getElementById(id);
 };
-var ws = "ws://192.168.7.63:1027";
+var ws = "ws://localhost:1027";
 var socket = new WebSocket(ws);
 
 Object.defineProperty(Object.prototype, 'trim', {
